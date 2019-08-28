@@ -9,6 +9,10 @@ if not os.path.exists('db/tasks.db'):
     with open('db/init_tasksdb') as f:
         for line in f:
             cursor.execute(line)
+    with open('hello') as f:
+        for i, line in enumerate(f.read().split(',')):
+            print(f'INSERT INTO task4 VALUES {i+1}, {line[1:][:-1]}')
+            cursor.execute(f'INSERT INTO task4 VALUES ({i+1}, {line[1:][:-1]})')
     conn.commit()
     conn.close()
 
@@ -34,6 +38,7 @@ def index():
     <a href="/task1">Task 1. Самое начало</a><br>
     <a href="/task2">Task 2. Найди меня</a><br>
     <a href="/task3">Task 3. Очень-очень длинный флаг</a><br>
+    <a href="/task4">Task 4. Очень-очень большой найди меня</a><br>
     <a href="/flag">Enter your flag</a>
     '''
 
@@ -101,7 +106,25 @@ def task3():
         table = f'''<table border="1"><thead><tr><th>price</th><th>flag</th></tr></thead><tbody>{res}</tbody></table>'''
         return f'{html} <br> {table}'
 
+@app.route('/task4', methods=['GET', 'POST'])
+def task4():
+    html = '''
+    Ето мильон значений, you're welcome
+    <form method="post">
+        <input name="query">
+        <button type="submit">Отправить</button>
+    </form>
+    '''
+    if request.method == 'GET':
+        return html
+    else:
+        query = request.form.get('query')
 
+        cur_tasks.execute(f'{query}')
+        conn_tasks.commit()
+        res = ''.join([f'<tr><th>{i[0]}</th><th>{i[1]}</th></tr>' for i in cur_tasks.fetchall()])
+        table = f'''<table border="1"><thead><tr><th>price</th><th>flag</th></tr></thead><tbody>{res}</tbody></table>'''
+        return f'{html} <br> <div>{table}</div>'
 
 @app.route('/flag', methods=['GET', 'POST'])
 def flag():
@@ -135,7 +158,8 @@ def flag():
 def check(flag):
     answers = ['hack_or_go_home{asjdlkzzc231s}',
         'hack_or_go_home{tksnbwjvty}',
-        'hack_or_go_home{ya_vas_kategorichesky_privetstvuy_eto_ochen_ochen_extra_mega_ultra_acva_achy_dlinny_flag}'
+        'hack_or_go_home{ya_vas_kategorichesky_privetstvuy_eto_ochen_ochen_extra_mega_ultra_acva_achy_dlinny_flag}',
+        'hack_or_go_home{dogvsqrljifbaqb}'
         ]
     for i, ans in enumerate(answers):
         if flag == ans:
