@@ -1,0 +1,1 @@
+CREATE TABLE results (login text primary key, task1 int default 0, task2 int default 0, task3 int default 0, task4 int default 0);
